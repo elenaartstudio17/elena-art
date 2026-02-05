@@ -242,12 +242,25 @@
       .contact-text{ display:none; }
 
       .icon{ width:52px; height:52px; }
-      .icon svg{ width:24px; height:24px; }
+     .icon svg{ width:24px; height:24px; }
 
-      .contacts,.socials{
-        width:min(340px, 92vw);
-        gap:14px;
-      }
+         /* кнопка Видео с иконкой */
+        .toplink-video{
+       display:inline-flex;
+       align-items:center;
+     gap:6px;
+     }
+
+       .toplink-video .icon-play{
+         width:16px;
+         height:16px;
+        display:block;
+     }
+
+     .contacts,.socials{
+     width:min(340px, 92vw);
+  gap:14px;
+   }
 
       /* сдвиг контактов ТОЛЬКО на мобильной */
       .ui-bottom{ transform: translate(0px, 0px); }
@@ -287,8 +300,11 @@
              target="_blank"
              rel="noopener noreferrer"
              data-lang="ru">
-            Видео
-          </a>
+             <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+             <path d="M8 5v14l11-7z"></path>
+             </svg>
+          <span>Видео</span>
+         </a>         
 
           <a class="toplink toplink-video"
              href="https://youtu.be/4oLFMxmjJVY?feature=shared"
@@ -296,8 +312,11 @@
              rel="noopener noreferrer"
              data-lang="sk"
              style="display:none">
-            Video
-          </a>
+            <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5v14l11-7z"></path>
+         </svg>
+        <span>Video</span>
+         </a>
         </div>
 
         <div class="lang" aria-label="Language switch">
