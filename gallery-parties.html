@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elena & Art — Арт вечеринки для взрослых</title>
+
+<style>
+:root{
+  --back-top: 26px;
+  --back-left: 24px;
+  --lang-top: 22px;
+  --lang-right: 20px;
+  --radius: 18px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+
+body{
+  margin:0;
+  font-family: Georgia,"Times New Roman",serif;
+  color:rgba(30,26,22,.88);
+  background:url("images/background.jpg") center/cover no-repeat fixed;
+}
+
+.veil{
+  min-height:100vh;
+  background:linear-gradient(
+    rgba(255,255,255,.15),
+    rgba(255,255,255,.20) 40%,
+    rgba(255,255,255,.12)
+  );
+}
+
+/* Назад */
+.back{
+  position:fixed;
+  top:var(--back-top);
+  left:var(--back-left);
+  z-index:50;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.55);
+  border:1px solid rgba(0,0,0,.08);
+  text-decoration:none;
+  color:inherit;
+  font-weight:700;
+  backdrop-filter:blur(6px);
+}
+.back:hover{background:rgba(255,255,255,.7)}
+
+/* Язык */
+.lang{
+  position:fixed;
+  top:var(--lang-top);
+  right:var(--lang-right);
+  z-index:50;
+  display:flex;
+  gap:10px;
+}
+.lang button{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,.1);
+  background:rgba(255,255,255,.55);
+  cursor:pointer;
+  font-weight:800;
+  backdrop-filter:blur(6px);
+}
+.lang button.active{
+  background:rgba(255,255,255,.85);
+}
+
+.wrap{
+  max-width:1180px;
+  margin:0 auto;
+  padding:92px 18px 80px;
+}
+
+h1{
+  margin:10px 0 10px;
+  font-size:48px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+}
+
+.tile{
+  aspect-ratio:1/1;
+  border-radius:var(--radius);
+  overflow:hidden;
+  background:rgba(255,255,255,.3);
+  border:1px solid rgba(0,0,0,.08);
+  cursor:pointer;
+}
+
+.tile img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* Lightbox */
+.lb{
+  position:fixed;
+  inset:0;
+  display:none;
+  background:rgba(0,0,0,.75);
+  z-index:999;
+}
+.lb.open{display:block}
+
+.lb-inner{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+}
+
+.lb-img{
+  max-width:92vw;
+  max-height:86vh;
+  border-radius:18px;
+}
+
+.lb-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  border:none;
+  background:rgba(0,0,0,.35);
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+}
+.lb-prev{left:20px}
+.lb-next{right:20px}
+.lb-close{
+  top:20px;
+  right:20px;
+  transform:none;
+}
+</style>
+</head>
+
+<body>
+<div class="veil">
+
+<a class="back" href="about.html" data-ru="← Назад" data-sk="← Späť">← Назад</a>
+
+<div class="lang">
+  <button id="ru" class="active">RU</button>
+  <button id="sk">SK</button>
+</div>
+
+<main class="wrap">
+  <h1 data-ru="Арт вечеринки для взрослых"
+      data-sk="Art večierky pre dospelých">
+    Арт вечеринки для взрослых
+  </h1>
+
+  <section class="grid" id="grid"></section>
+</main>
+</div>
+
+<!-- Lightbox -->
+<div class="lb" id="lb">
+  <div class="lb-inner">
+    <button class="lb-btn lb-prev" id="prev">‹</button>
+    <img class="lb-img" id="lbImg">
+    <button class="lb-btn lb-next" id="next">›</button>
+    <button class="lb-btn lb-close" id="close">✕</button>
+  </div>
+</div>
+
+<script>
+/* ====== НАСТРОЙКИ ====== */
+const TOTAL = 100;
+const FOLDER = "images/parties/";
+
+/* ====== ГЕНЕРАЦИЯ ====== */
+const grid = document.getElementById("grid");
+const images = [];
+
+for(let i=1;i<=TOTAL;i++){
+  const num = String(i).padStart(2,"0");
+  images.push(`${FOLDER}${num}.jpg`);
+}
+
+images.forEach((src,i)=>{
+  const tile=document.createElement("div");
+  tile.className="tile";
+  const img=document.createElement("img");
+  img.src=src;
+  img.loading="lazy";
+  img.onerror=()=>tile.remove();
+  tile.appendChild(img);
+  tile.onclick=()=>openLB(i);
+  grid.appendChild(tile);
+});
+
+/* ====== LIGHTBOX ====== */
+const lb=document.getElementById("lb");
+const lbImg=document.getElementById("lbImg");
+let current=0;
+
+function openLB(i){
+  current=i;
+  lbImg.src=images[current];
+  lb.classList.add("open");
+}
+function closeLB(){lb.classList.remove("open")}
+function prev(){current=(current-1+images.length)%images.length;lbImg.src=images[current]}
+function next(){current=(current+1)%images.length;lbImg.src=images[current]}
+
+document.getElementById("prev").onclick=e=>{e.stopPropagation();prev()}
+document.getElementById("next").onclick=e=>{e.stopPropagation();next()}
+document.getElementById("close").onclick=e=>{e.stopPropagation();closeLB()}
+lb.onclick=closeLB;
+
+/* ====== ЯЗЫК ====== */
+function setLang(l){
+  document.documentElement.lang=l;
+  document.querySelectorAll("[data-ru]").forEach(el=>{
+    el.textContent=l==="sk"?el.dataset.sk:el.dataset.ru;
+  });
+  ru.classList.toggle("active",l==="ru");
+  sk.classList.toggle("active",l==="sk");
+}
+ru.onclick=()=>setLang("ru");
+sk.onclick=()=>setLang("sk");
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Elena & Art — Фотогалерея студии</title>
+
+  <style>
+    :root{
+      --text: rgba(47,43,42,.92);
+      --pill: rgba(255,255,255,.55);
+      --pillActive: rgba(255,255,255,.78);
+      --shadow: 0 10px 30px rgba(0,0,0,.15);
+      --radius: 22px;
+    }
+
+    body{
+      margin:0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background: url("images/background.jpg") center/cover no-repeat fixed;
+    }
+
+    .page{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 60px 70px;
+      position: relative;
+    }
+
+    /* ===== КНОПКА НАЗАД ===== */
+    .back{
+      position: absolute;
+      top: 28px;
+      left: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 16px;
+      background: transparent;
+    }
+
+    /* ===== ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА ===== */
+    .lang{
+      position:absolute;
+      top: 26px;
+      right: 34px;
+      display:flex;
+      gap:10px;
+      user-select:none;
+    }
+    .lang button{
+      border: 0;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: var(--pill);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .lang button.active{
+      background: var(--pillActive);
+      box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    }
+
+    /* ===== ЗАГОЛОВОК ===== */
+    h1{
+      font-size: 44px;
+      margin: 64px 0 10px;
+      letter-spacing: .02em;
+    }
+    .count{
+      font-size: 14px;
+      opacity: .75;
+      margin-bottom: 28px;
+    }
+
+    /* ===== ГАЛЕРЕЯ (СДЕЛАЛИ МЕНЬШЕ) ===== */
+    .gallery{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr)); /* было 220 -> стало 180 */
+      gap: 18px; /* чуть плотнее */
+      align-items: start;
+    }
+
+    @media (max-width: 1200px){
+      .gallery{ grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+    }
+    @media (max-width: 850px){
+      .page{ padding: 30px 18px 60px; }
+      .back{ position: static; display:inline-block; margin-bottom: 10px; }
+      .lang{ right: 18px; }
+      .gallery{ grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+    }
+    @media (max-width: 520px){
+      .gallery{ grid-template-columns: 1fr; }
+    }
+
+    .photo{
+      width:100%;
+      aspect-ratio: 1 / 1;          /* ровные квадраты */
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      background: rgba(255,255,255,.18);
+      backdrop-filter: blur(1px);
+    }
+
+    .photo img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      transition: transform .25s ease;
+      cursor: pointer;
+    }
+
+    .photo img:hover{
+      transform: scale(1.03);
+    }
+
+    /* ===== ЛАЙТБОКС ===== */
+    .lightbox{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+    }
+    .lightbox.open{ display:flex; }
+
+    .lb-frame{
+      position: relative;
+      width: min(1100px, 96vw);
+      height: 88vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .lightbox img{
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      background: rgba(255,255,255,.06);
+    }
+
+    .lb-close{
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      border: 0;
+      background: rgba(255,255,255,.18);
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      z-index: 10000;
+    }
+
+    /* ===== СТРЕЛКИ ВПЕРЕД/НАЗАД ===== */
+    .lb-nav{
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      border: 0;
+      cursor: pointer;
+      background: rgba(255,255,255,.18);
+      color: #fff;
+      font-size: 26px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+    }
+    .lb-prev{ left: -8px; }
+    .lb-next{ right: -8px; }
+
+    @media (max-width: 700px){
+      .lb-prev{ left: 6px; }
+      .lb-next{ right: 6px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- НАЗАД -->
+    <a class="back" href="about.html" id="backLink" data-ru="← Назад" data-sk="← Späť">← Назад</a>
+
+    <!-- ЯЗЫК -->
+    <div class="lang">
+      <button type="button" id="btnRU" class="active">RU</button>
+      <button type="button" id="btnSK">SK</button>
+    </div>
+
+    <!-- ЗАГОЛОВОК -->
+    <h1 id="title"
+        data-ru="Фотогалерея нашей студии"
+        data-sk="Fotogaléria nášho štúdia">
+      Фотогалерея нашей студии
+    </h1>
+
+    <div class="count" id="count"
+         data-ru="34 фото"
+         data-sk="34 fotiek">
+      34 фото
+    </div>
+
+<div class="gallery">
+  <div class="photo"><img src="images/gallery-studio/studio01.jpg" alt="studio01"></div>
+  <div class="photo"><img src="images/gallery-studio/studio02.jpg" alt="studio02"></div>
+  <div class="photo"><img src="images/gallery-studio/studio03.jpg" alt="studio03"></div>
+  <div class="photo"><img src="images/gallery-studio/studio04.jpg" alt="studio04"></div>
+  <div class="photo"><img src="images/gallery-studio/studio05.jpg" alt="studio05"></div>
+  <div class="photo"><img src="images/gallery-studio/studio06.jpg" alt="studio06"></div>
+  <div class="photo"><img src="images/gallery-studio/studio07.jpg" alt="studio07"></div>
+  <div class="photo"><img src="images/gallery-studio/studio08.jpg" alt="studio08"></div>
+  <div class="photo"><img src="images/gallery-studio/studio09.jpg" alt="studio09"></div>
+  <div class="photo"><img src="images/gallery-studio/studio10.jpg" alt="studio10"></div>
+  <div class="photo"><img src="images/gallery-studio/studio11.jpg" alt="studio11"></div>
+  <div class="photo"><img src="images/gallery-studio/studio12.jpg" alt="studio12"></div>
+  <div class="photo"><img src="images/gallery-studio/studio13.jpg" alt="studio13"></div>
+  <div class="photo"><img src="images/gallery-studio/studio14.jpg" alt="studio14"></div>
+  <div class="photo"><img src="images/gallery-studio/studio15.jpg" alt="studio15"></div>
+  <div class="photo"><img src="images/gallery-studio/studio16.jpg" alt="studio16"></div>
+  <div class="photo"><img src="images/gallery-studio/studio17.jpg" alt="studio17"></div>
+  <div class="photo"><img src="images/gallery-studio/studio18.jpg" alt="studio18"></div>
+  <div class="photo"><img src="images/gallery-studio/studio19.jpg" alt="studio19"></div>
+  <div class="photo"><img src="images/gallery-studio/studio20.jpg" alt="studio20"></div>
+  <div class="photo"><img src="images/gallery-studio/studio21.jpg" alt="studio21"></div>
+  <div class="photo"><img src="images/gallery-studio/studio22.jpg" alt="studio22"></div>
+  <div class="photo"><img src="images/gallery-studio/studio23.jpg" alt="studio23"></div>
+  <div class="photo"><img src="images/gallery-studio/studio24.jpg" alt="studio24"></div>
+  <div class="photo"><img src="images/gallery-studio/studio25.jpg" alt="studio25"></div>
+  <div class="photo"><img src="images/gallery-studio/studio26.jpg" alt="studio26"></div>
+  <div class="photo"><img src="images/gallery-studio/studio27.jpg" alt="studio27"></div>
+  <div class="photo"><img src="images/gallery-studio/studio28.jpg" alt="studio28"></div>
+  <div class="photo"><img src="images/gallery-studio/studio29.jpg" alt="studio29"></div>
+  <div class="photo"><img src="images/gallery-studio/studio30.jpg" alt="studio30"></div>
+  <div class="photo"><img src="images/gallery-studio/studio31.jpg" alt="studio31"></div>
+  <div class="photo"><img src="images/gallery-studio/studio32.jpg" alt="studio32"></div>
+  <div class="photo"><img src="images/gallery-studio/studio33.jpg" alt="studio33"></div>
+  <div class="photo"><img src="images/gallery-studio/studio34.jpg" alt="studio34"></div>
+</div>
+
+  </div>
+
+  <!-- ЛАЙТБОКС -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" id="lbClose" type="button" aria-label="Close">✕</button>
+
+    <div class="lb-frame">
+      <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="Previous">‹</button>
+      <img id="lbImg" src="" alt="preview">
+      <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="Next">›</button>
+    </div>
+  </div>
+
+  <script>
+    /* ===== ЯЗЫК ===== */
+    function setLang(lang){
+      const title = document.getElementById("title");
+      const count = document.getElementById("count");
+      const back  = document.getElementById("backLink");
+
+      title.textContent = title.dataset[lang];
+      count.textContent = count.dataset[lang];
+      back.textContent  = back.dataset[lang];
+
+      const btnRU = document.getElementById("btnRU");
+      const btnSK = document.getElementById("btnSK");
+
+      if(lang === "ru"){
+        btnRU.classList.add("active");
+        btnSK.classList.remove("active");
+        document.documentElement.lang = "ru";
+      } else {
+        btnSK.classList.add("active");
+        btnRU.classList.remove("active");
+        document.documentElement.lang = "sk";
+      }
+
+      localStorage.setItem("site_lang", lang);
+    }
+
+    document.getElementById("btnRU").addEventListener("click", () => setLang("ru"));
+    document.getElementById("btnSK").addEventListener("click", () => setLang("sk"));
+
+    const saved = localStorage.getItem("site_lang");
+    if(saved === "sk") setLang("sk"); else setLang("ru");
+
+    /* ===== ЛАЙТБОКС + СТРЕЛКИ ===== */
+    const imgs = Array.from(document.querySelectorAll(".photo img"));
+    const lightbox = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lbImg");
+    const lbClose = document.getElementById("lbClose");
+    const lbPrev = document.getElementById("lbPrev");
+    const lbNext = document.getElementById("lbNext");
+
+    let currentIndex = 0;
+
+    function openLightbox(index){
+      currentIndex = index;
+      lbImg.src = imgs[currentIndex].src;
+      lbImg.alt = imgs[currentIndex].alt || "photo";
+      lightbox.classList.add("open");
+      lightbox.setAttribute("aria-hidden", "false");
+    }
+
+    function closeLightbox(){
+      lightbox.classList.remove("open");
+      lightbox.setAttribute("aria-hidden", "true");
+      lbImg.src = "";
+    }
+
+    function showPrev(){
+      currentIndex = (currentIndex - 1 + imgs.length) % imgs.length;
+      lbImg.src = imgs[currentIndex].src;
+      lbImg.alt = imgs[currentIndex].alt || "photo";
+    }
+
+    function showNext(){
+      currentIndex = (currentIndex + 1) % imgs.length;
+      lbImg.src = imgs[currentIndex].src;
+      lbImg.alt = imgs[currentIndex].alt || "photo";
+    }
+
+    imgs.forEach((img, i) => {
+      img.addEventListener("click", () => openLightbox(i));
+    });
+
+    lbClose.addEventListener("click", closeLightbox);
+    lbPrev.addEventListener("click", (e) => { e.stopPropagation(); showPrev(); });
+    lbNext.addEventListener("click", (e) => { e.stopPropagation(); showNext(); });
+
+    // клик по фону закрывает
+    lightbox.addEventListener("click", (e) => {
+      if(e.target === lightbox) closeLightbox();
+    });
+
+    // клавиши
+    document.addEventListener("keydown", (e) => {
+      if(!lightbox.classList.contains("open")) return;
+      if(e.key === "Escape") closeLightbox();
+      if(e.key === "ArrowLeft") showPrev();
+      if(e.key === "ArrowRight") showNext();
+    });
+  </script>
+</body>
+</html>
